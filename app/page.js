@@ -1,16 +1,37 @@
-import Image from 'next/image';
-import styles from './page.module.css';
+'use client';
 
-export default function Home() {
+import { useCompletion } from 'ai/react';
+import { useState, useCallback } from 'react';
+
+export default function Flowboard() {
+  const [input, setInput] = useState('');
+  const [output, setOutput] = useState('');
+
+  const { complete } = useCompletion({
+    api: '/api/completion'
+  });
+
+  const fixTypos = useCallback(
+    async (c) => {
+      const completion = await complete(c);
+      console.log("Fixed text: ", completion)
+      if (!completion) throw new Error('Failed to check typos');
+
+      setOutput(completion);
+    },
+    [complete]
+  );
+
   return (
-    <>
-      <header>
-        <link
-          rel="icon"
-          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.93em' font-size='90'>key</text></svg>"
-        />
-      </header>
-      <main className={styles.main}></main>
-    </>
+    <div>
+      <h1>Typo fixer</h1>
+      <textarea value={input} onChange={(e) => setInput(e.target.value)} />
+      <button onClick={() => fixTypos(input)}>Fix</button>
+
+      <div>
+        <h2>Output:</h2>
+        <p>{output}</p>
+      </div>
+    </div>
   );
 }
