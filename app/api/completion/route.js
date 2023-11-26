@@ -11,6 +11,11 @@ export async function POST(req) {
   // Extract the `prompt` from the body of the request
   const { prompt } = await req.json();
 
+  // If prompt is empty, return 400
+  if (!prompt || prompt.length === 0 || prompt.trim() === '') {
+    return new Response('Bad request', { status: 400 });
+  }
+  
   console.log("Request received", prompt)
   // Request the OpenAI API for the response based on the prompt
   const response = await openai.chat.completions.create({
